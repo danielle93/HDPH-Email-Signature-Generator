@@ -5,10 +5,29 @@ import GeneratedSignature from "./GeneratedSignature";
 import SVGloader from "./SVGloader";
 import defaultEmployeeImage from "../img/placeholder.png";
 
+const AIRTABLE_API_KEY = process.env.REACT_APP_AIRTABLE_API_KEY;
+const AIRTABLE_BASE_ID = process.env.REACT_APP_AIRTABLE_BASE_ID;
+const AIRTABLE_EMPLOYEE_TABLE_ID =
+  process.env.REACT_APP_AIRTABLE_EMPLOYEE_TABLE_ID;
+const AIRTABLE_CULTURE_TABLE_ID =
+  process.env.REACT_APP_AIRTABLE_CULTURE_TABLE_ID;
+
+  if (
+  !AIRTABLE_API_KEY ||
+  !AIRTABLE_BASE_ID ||
+  !AIRTABLE_EMPLOYEE_TABLE_ID ||
+  !AIRTABLE_CULTURE_TABLE_ID
+) {
+  console.error(
+    "One or more required Airtable environment variables are missing."
+  );
+}
+
 function EmailSignatureForm() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [optOutOfEmployeePhoto, setOptOutOfEmployeePhoto] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -48,11 +67,10 @@ function EmailSignatureForm() {
 
         // Culture Images Table
         const response = await fetch(
-          `https://api.airtable.com/v0/appP6GPZNr7y1QSs9/tblQIwfFOBZq5ku0t?timestamp=${timestamp}`,
+          `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_CULTURE_TABLE_ID}?timestamp=${timestamp}`,
           {
             headers: {
-              Authorization:
-                "Bearer patt8f792MHQMgVvF.04577d4f40ddf573d332ed592b73658f2344c9525864133f19b48b0a4040259e",
+              Authorization: `Bearer ${AIRTABLE_API_KEY}`,
             },
           }
         );
@@ -138,59 +156,81 @@ function EmailSignatureForm() {
     });
   };
 
-  const searchForEmployeeImage = async (offset, retryCount = 0) => {
+  const MATCH_EMPLOYEE_BY_FIRST_NAME_ONLY = true;
+  
+  const searchForEmployeeImage = async (offset = "", retryCount = 0) => {
     try {
-      // Employee Images Table
+      const queryString = offset
+        ? `?offset=${encodeURIComponent(offset)}`
+        : "";
+
       const response = await fetch(
-        `https://api.airtable.com/v0/appP6GPZNr7y1QSs9/tblV8uywcMco7HEFe?offset=${offset}`,
+        `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_EMPLOYEE_TABLE_ID}${queryString}`,
         {
           headers: {
-            Authorization:
-              "Bearer patt8f792MHQMgVvF.04577d4f40ddf573d332ed592b73658f2344c9525864133f19b48b0a4040259e",
+            Authorization: `Bearer ${AIRTABLE_API_KEY}`,
           },
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to fetch data from Airtable");
+        const errorText = await response.text();
+
+        throw new Error(
+          `Failed to fetch employee images: ${response.status} ${errorText}`
+        );
       }
 
       const data = await response.json();
-      var fileName = `${formData.firstName}${formData.lastName}.png`
-        .toLowerCase() // convert to lowercase
-        .replace(/\s/g, ""); // remove extra spaces
 
-      // alert(fileName);
+      const normalizeName = (value = "") =>
+        value
+          .toLowerCase()
+          .trim()
+          .replace(/\.[^/.]+$/, "") // Remove the file extension
+          .replace(/[^a-z0-9]/g, ""); // Remove spaces, hyphens, etc.
 
-      // Log all unique entries
-      const uniqueEntries = new Set(
-        data.records.map((record) =>
-          record.fields.Attachments[0].filename.toLowerCase()
-        )
-      ); // Convert to lowercase
-      console.log("Unique Entries:", Array.from(uniqueEntries));
+      const normalizedFirstName = normalizeName(formData.firstName);
+      const normalizedLastName = normalizeName(formData.lastName);
 
-      // Find the record with the matching filename in the Airtable API response
+      const expectedImageName = MATCH_EMPLOYEE_BY_FIRST_NAME_ONLY
+        ? normalizedFirstName
+        : `${normalizedFirstName}${normalizedLastName}`;
+
       const matchingRecord = data.records.find((record) => {
         const attachments = record.fields.Attachments;
-        return (
-          attachments &&
-          attachments.length > 0 &&
-          attachments[0].filename.toLowerCase() === fileName
-        );
+
+        if (!attachments?.length) {
+          return false;
+        }
+
+        return attachments.some((attachment) => {
+          const normalizedFileName = normalizeName(attachment.filename);
+
+          return normalizedFileName === expectedImageName;
+        });
       });
 
       if (matchingRecord) {
-        return matchingRecord.fields.Attachments[0].thumbnails.full.url;
-      } else if (data.offset && retryCount < 2) {
-        // If there are no matching records and there's more data, retry with the new offset
-        return searchForEmployeeImage(data.offset, retryCount + 1);
-      } else {
-        // If no matching record is found and no more data is available, return null
-        return null;
+        const matchingAttachment = matchingRecord.fields.Attachments.find(
+          (attachment) =>
+            normalizeName(attachment.filename) === expectedImageName
+        );
+
+        return (
+          matchingAttachment?.thumbnails?.full?.url ||
+          matchingAttachment?.url ||
+          null
+        );
       }
+
+      if (data.offset && retryCount < 10) {
+        return searchForEmployeeImage(data.offset, retryCount + 1);
+      }
+
+      return null;
     } catch (error) {
-      console.error("Error fetching data from Airtable:", error);
+      console.error("Error fetching employee image from Airtable:", error);
       return null;
     }
   };
@@ -200,48 +240,30 @@ function EmailSignatureForm() {
     setLoading(true);
 
     try {
-      const offset = ""; // Start with an empty offset
-      const employeeImage = await searchForEmployeeImage(offset);
+      const employeeImage = optOutOfEmployeePhoto
+        ? defaultEmployeeImage
+        : (await searchForEmployeeImage("")) || defaultEmployeeImage;
 
       const cleanedFirstName = formData.firstName.replace(/\s+/g, " ").trim();
       const cleanedLastName = formData.lastName.replace(/\s+/g, " ").trim();
 
       const fullName = `${cleanedFirstName} ${cleanedLastName}`;
 
-      if (employeeImage) {
-        setTimeout(() => {
-          setResults((prevResults) => (
-            <GeneratedSignature
-              fullName={fullName}
-              jobTitle={formData.jobTitle}
-              phoneNumber={formData.phoneNumber}
-              emailAddress={formData.emailAddress}
-              address={formData.address}
-              color={formData.color}
-              employeeImage={employeeImage}
-            />
-          ));
+      setTimeout(() => {
+        setResults(
+          <GeneratedSignature
+            fullName={fullName}
+            jobTitle={formData.jobTitle}
+            phoneNumber={formData.phoneNumber}
+            emailAddress={formData.emailAddress}
+            address={formData.address}
+            color={formData.color}
+            employeeImage={employeeImage}
+          />
+        );
 
-          setLoading(false);
-        }, 1500);
-      } else {
-        setTimeout(() => {
-          // Handle the case where the image doesn't exist in the Airtable response
-          setResults((prevResults) => (
-            <GeneratedSignature
-              fullName={fullName}
-              jobTitle={formData.jobTitle}
-              phoneNumber={formData.phoneNumber}
-              emailAddress={formData.emailAddress}
-              address={formData.address}
-              color={formData.color} // Pass the color prop
-              employeeImage={defaultEmployeeImage} // Pass null for the employee image
-            />
-          ));
-
-          setLoading(false);
-        }, 1500);
-      }
+        setLoading(false);
+      }, 1500);
     } catch (error) {
       setTimeout(() => {
         console.error("Error fetching data from Airtable:", error);
@@ -379,23 +401,29 @@ function EmailSignatureForm() {
                         Instructions:
                       </h2>
                       <ul className="font-primary instructions">
-                        <li className="">Click Copy to Clipboard</li>
-                        <li className="">
-                          Outlook &gt; Settings &gt; Signatures &gt; Edit
+                        <li>Click Copy to Clipboard</li>
+                        <li>
+                          Open Gmail &gt; Settings &gt; See all settings
                         </li>
-                        <li className="">
-                          Delete all the content and paste your email signature
-                          &gt; Save
+                        
+                        <li>
+                          Under “General,” scroll down to the “Signature” section
                         </li>
-                        <li className="">
-                          You can rename the “Standard” email signature to
-                          Habitat
+                        <li>
+                          Click “Create new” and name your signature “HDPhotoHub”
                         </li>
-                        <li className="">
-                          Under “Choose Default Signature” Select your email
-                          signature for “New Messages” and “Replies/Forward”
+                        <li>
+                          Click inside the signature box, delete any existing content, and paste your
+                          new email signature
                         </li>
-                        <li className="">You're done!</li>
+                        <li>
+                          Under “Signature defaults,” select “HDPhotoHub” for both “For new emails use”
+                          and “On reply/forward use”
+                        </li>
+                        <li>
+                          Scroll to the bottom of the page and click “Save Changes”
+                        </li>
+                        <li>You're done!</li>
                       </ul>
                     </div>
                     <div className="text-center text-right@md">
@@ -500,10 +528,45 @@ function EmailSignatureForm() {
               <div id="emailsigform" className="margin-top-sm">
                 <Fade bottom cascade>
                   <form onSubmit={handleSubmit} className="">
-                    <div>
+                    <div style={{ position: "relative" }}>
                       <label className="block " htmlFor="first-name">
                         First Name
                       </label>
+
+                      <label
+                        className={`radio-container radius-md padding-left-xl padding-left-lg@md padding-right-0 padding-y-xs ${
+                          optOutOfEmployeePhoto ? "selected" : ""
+                        }`}
+                        style={{
+                          position: "absolute",
+                          top: "-9px",
+                          right: 0,
+                          zIndex: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          minHeight: "36px",
+                          boxSizing: "border-box",
+                          cursor: "pointer",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          id="opt-out-employee-photo"
+                          checked={optOutOfEmployeePhoto}
+                          onChange={(e) =>
+                            setOptOutOfEmployeePhoto(e.target.checked)
+                          }
+                        />
+                        <span style={{ fontSize: "12px" }}>
+                          Opt out of employee photo
+                        </span>
+                        <span
+                          className="agency-checkbox"
+                          aria-hidden="true"
+                        ></span>
+                      </label>
+
                       <input
                         type="text"
                         id="first-name"
