@@ -394,7 +394,7 @@ function EmailSignatureForm() {
 
                   <div className="col-12 col@md">
                     <div
-                      className="padding-lg radius-lg"
+                      className="padding-x-lg padding-y-md radius-lg"
                       style={{ background: "#FFFFFF", color: "#070F0B" }}
                     >
                       <h2 className="text-md font-secondary margin-bottom-xs">
@@ -586,7 +586,6 @@ function EmailSignatureForm() {
                         name="lastName"
                         value={formData.lastName}
                         onChange={handleChange}
-                        required
                       />
                     </div>
                     <div>
