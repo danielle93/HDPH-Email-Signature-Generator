@@ -27,7 +27,7 @@ function GeneratedSignature({
           <td width="130" rowSpan="8" style={{ verticalAlign: "bottom" }}>
             <p style={{ textAlign: "center" }}>
               <img
-                width="172"
+                width="175"
                 src={employeeImage}
                 alt="Nice Headshot"
                 style={{ verticalAlign: "bottom" }}
