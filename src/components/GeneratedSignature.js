@@ -21,13 +21,13 @@ function GeneratedSignature({
     color === "#EA0707" || color === "#000000" ? "#FFFFFF" : "#2C2C2A";
 
   return (
-    <table className="generatedSignature" border="0" width="250">
+    <table className="generatedSignature" border="0" width="350">
       <tbody style={{ verticalAlign: "bottom" }}>
         <tr style={{ verticalAlign: "bottom" }}>
           <td width="130" rowSpan="8" style={{ verticalAlign: "bottom" }}>
             <p style={{ textAlign: "center" }}>
               <img
-                width="150"
+                width="172"
                 src={employeeImage}
                 alt="Nice Headshot"
                 style={{ verticalAlign: "bottom" }}
@@ -69,7 +69,7 @@ function GeneratedSignature({
             }}
           >
             <font face="'Helvetica', 'Arial', sans-serif">
-              {phoneNumber ? phoneNumber : "509.515.3338"}
+              &nbsp;{phoneNumber ? phoneNumber : "509.515.3338"}
             </font>
           </td>
         </tr>
@@ -105,7 +105,7 @@ function GeneratedSignature({
               href="https://hdphotohub.com/"
             >
               <font face="'Helvetica', 'Arial', sans-serif">
-                HDPHOTOHUB.COM
+                &nbsp;HDPHOTOHUB.COM
               </font>
             </a>
           </td>
@@ -120,45 +120,216 @@ function GeneratedSignature({
         </tr>
 
         <tr>
+  <td
+    width="100%"
+    style={{
+      padding: 0,
+      textAlign: "center",
+      fontSize: 0,
+      lineHeight: 0,
+    }}
+  >
+    <table
+      role="presentation"
+      border="0"
+      cellPadding="0"
+      cellSpacing="0"
+      width="150"
+      align="center"
+      style={{
+        width: "150px",
+        margin: "0 auto",
+        borderCollapse: "collapse",
+        borderSpacing: 0,
+        tableLayout: "fixed",
+      }}
+    >
+      <tbody>
+        <tr>
           <td
-            width="100%"
+            width="30"
+            height="35"
             style={{
-              textAlign: "center",
-              fontFamily: "'Helvetica', 'Arial', sans-serif",
-              color: "#003865",
-              fontSize: "6px",
-              fontWeight: "normal",
+              width: "30px",
+              height: "35px",
+              padding: 0,
+              verticalAlign: "middle",
+              fontSize: 0,
+              lineHeight: 0,
             }}
           >
             <a
               href="https://www.linkedin.com/company/hdphotohub/"
-              style={{ textDecoration: "none" }}
+              style={{
+                display: "block",
+                textDecoration: "none",
+                lineHeight: 0,
+              }}
             >
-              <img src={linkedinIcon} alt="LinkedIn" width="30" border="0" />
+              <img
+                src={linkedinIcon}
+                alt="LinkedIn"
+                width="30"
+                border="0"
+                style={{
+                  display: "block",
+                  width: "30px",
+                  height: "auto",
+                  margin: 0,
+                  border: 0,
+                }}
+              />
             </a>
-            &nbsp;&nbsp;
+          </td>
+
+          <td
+            width="5"
+            style={{
+              width: "5px",
+              padding: 0,
+              fontSize: 0,
+              lineHeight: 0,
+            }}
+          >
+            &nbsp;
+          </td>
+
+          <td
+            width="35"
+            height="35"
+            style={{
+              width: "35px",
+              height: "35px",
+              padding: 0,
+              verticalAlign: "middle",
+              fontSize: 0,
+              lineHeight: 0,
+            }}
+          >
             <a
               href="https://www.youtube.com/@HDPhotoHub"
-              style={{ textDecoration: "none" }}
+              style={{
+                display: "block",
+                textDecoration: "none",
+                lineHeight: 0,
+              }}
             >
-              <img src={youtubeIcon} alt="YouTube" width="35" border="0" />
+              <img
+                src={youtubeIcon}
+                alt="YouTube"
+                width="35"
+                border="0"
+                style={{
+                  display: "block",
+                  width: "35px",
+                  height: "auto",
+                  margin: 0,
+                  border: 0,
+                }}
+              />
             </a>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+
+          <td
+            width="10"
+            style={{
+              width: "10px",
+              padding: 0,
+              fontSize: 0,
+              lineHeight: 0,
+            }}
+          >
+            &nbsp;
+          </td>
+
+          <td
+            width="30"
+            height="35"
+            style={{
+              width: "30px",
+              height: "35px",
+              padding: 0,
+              verticalAlign: "middle",
+              fontSize: 0,
+              lineHeight: 0,
+            }}
+          >
             <a
               href="https://www.instagram.com/hdphotohub/"
-              style={{ textDecoration: "none" }}
+              style={{
+                display: "block",
+                textDecoration: "none",
+                lineHeight: 0,
+              }}
             >
-              <img src={instagramIcon} alt="Instagram" width="30" border="0" />
+              <img
+                src={instagramIcon}
+                alt="Instagram"
+                width="30"
+                border="0"
+                style={{
+                  display: "block",
+                  width: "30px",
+                  height: "auto",
+                  margin: 0,
+                  border: 0,
+                }}
+              />
             </a>
-            &nbsp;&nbsp;
+          </td>
+
+          <td
+            width="5"
+            style={{
+              width: "5px",
+              padding: 0,
+              fontSize: 0,
+              lineHeight: 0,
+            }}
+          >
+            &nbsp;
+          </td>
+
+          <td
+            width="35"
+            height="35"
+            style={{
+              width: "35px",
+              height: "35px",
+              padding: 0,
+              verticalAlign: "middle",
+              fontSize: 0,
+              lineHeight: 0,
+            }}
+          >
             <a
               href="https://www.facebook.com/hdphotohub"
-              style={{ textDecoration: "none", top: "1px", position: "relative" }}
+              style={{
+                display: "block",
+                textDecoration: "none",
+                lineHeight: 0,
+              }}
             >
-              <img src={facebookIcon} alt="Facebook" width="35" border="0" style={{top: "1px", position: "relative"}} />
+              <img
+                src={facebookIcon}
+                alt="Facebook"
+                width="35"
+                border="0"
+                style={{
+                  display: "block",
+                  width: "35px",
+                  height: "auto",
+                  margin: 0,
+                  border: 0,
+                }}
+              />
             </a>
           </td>
         </tr>
+      </tbody>
+    </table>
+  </td>
+</tr>
 
         <tr>
           <td colSpan="4" height="10"></td>
