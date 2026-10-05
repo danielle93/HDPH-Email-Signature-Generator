@@ -165,13 +165,17 @@ ul {
 
   .hover-hide {
     opacity: 0;
-    text-decoration: none;
+    text-decoration: unset !important;
   }
 
   &::after {
     transform: scaleX(1);
     transform-origin: left top;
   }
+}
+
+a{
+      text-decoration: unset !important;
 }
 
 .marquee {
@@ -251,7 +255,7 @@ a {
 .generatedSignature {
   position: relative;
   left: -50px;
-  margin: 0 auto;
+  // margin: 0 auto;
   transform: scale(0.75);
 
   @include breakpoint(md) {

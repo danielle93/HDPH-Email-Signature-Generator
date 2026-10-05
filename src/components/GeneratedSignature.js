@@ -68,9 +68,18 @@ function GeneratedSignature({
               fontWeight: "normal",
             }}
           >
-            <font face="'Helvetica', 'Arial', sans-serif">
-              &nbsp;{phoneNumber ? phoneNumber : "509.515.3338"}
-            </font>
+            <a
+              href={`tel:${(phoneNumber || "509.515.3338").replace(/[^\d+]/g, "")}`}
+              style={{
+                fontFamily: "'Helvetica', 'Arial', sans-serif",
+                color: "#070F0B",
+                fontSize: "12px",
+                fontWeight: "normal",
+                textDecoration: "none",
+              }}
+            >
+              &nbsp;{phoneNumber || "509.515.3338"}
+            </a>
           </td>
         </tr>
 
@@ -101,6 +110,7 @@ function GeneratedSignature({
                 color: "#070F0B",
                 fontSize: "12px",
                 fontWeight: "normal",
+                textDecoration: "none",
               }}
               href="https://hdphotohub.com/"
             >
