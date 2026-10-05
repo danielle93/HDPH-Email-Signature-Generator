@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link id="favicon" rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <script>
+      const favicon = document.getElementById("favicon");
+      favicon.href = `${favicon.getAttribute("href")}?v=${Date.now()}`;
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
     <meta
